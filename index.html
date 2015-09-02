@@ -1,0 +1,48 @@
+<head>
+	<script src="jquery-1.11.3.min.js"></script>
+</head>
+<body>
+	<h1>Youtube to mp3 Conversion</h1>
+	<form action="##" id="url_form">
+		Please paste the youtube URL here: 
+		<input type='text' name='youtube_url' id="yurl">
+		<input type='submit'>
+	</form>
+
+	<script type="text/javascript">
+		$('#url_form [type=submit]').click(function(e){
+			console.log("Submit, Data: " + $("#yurl").val())
+		   	e.preventDefault();		//prevents default form submit.
+		   	$.ajax({    
+		     	url:'backend.php',
+		     	data:{
+		     		"youtube_url":$("#yurl").val(),
+		     		"op":"convert"
+		     	},
+		     	success :function(data, status){
+			     	console.log("Data has been returned:" + data)
+
+			     	data_json = JSON.parse(data)
+					
+					// create download link:
+					if(data["return"] != "0" && data["vid"] != "undefined") {
+						dl = $(document.createElement("div"))
+						dl.appendTo("body")
+						$("<a>", {
+							"id": "download-link",
+							 "href": "backend.php?vid=" + data_json["vid"] + "&op=download",
+							 "html": "Download Link"
+						}).appendTo(dl)
+
+
+					} else {
+						$("<p>", {
+							"html" : "Convertion Failed."
+						}).appendTo("body")
+						console.log("data: " + data + " status: " + status)
+					}
+		     	}
+		   }); 
+		}); 
+	</script>
+</body>
