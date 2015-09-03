@@ -5,7 +5,7 @@
 		public function convert() {
 			$host = $_SERVER["HTTP_HOST"];
 			$url = $_REQUEST["youtube_url"];
-			$vid = "UybVeuP-Lxo";
+			//$vid = "UybVeuP-Lxo";
 			//$url = http_build_url(); 	// default is current page
 			// Or use this:
 			// $url = $_SERVER["REQUEST_URI"];
@@ -20,6 +20,13 @@
 				exit;
 			}
 			*/
+			$pattern = "@^(https://)?www\.youtube\.com\/watch\?v=(.{11})@";
+			if(isset($url) && preg_match($pattern, $url, $match) == 1) {
+				$vid = $match[2];
+			} else {
+				error_log("Pattern does not match. Exit");
+				exit;
+			}
 
 			error_log("Downloading youtube from youtube.com");
 			exec("youtube-dl -x ".$url." --audio-format mp3 -o 'Downloads/%(id)s.%(ext)s'", $output, $ret);

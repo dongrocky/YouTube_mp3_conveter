@@ -13,6 +13,18 @@
 		$('#url_form [type=submit]').click(function(e){
 			console.log("Submit, Data: " + $("#yurl").val())
 		   	e.preventDefault();		//prevents default form submit.
+
+		   	// create download info section
+			if($("#download-info").length == 0) {
+				dl = $(document.createElement("div"))
+				dl.attr("id","download-info")
+				dl.appendTo("body")
+			}
+			$("#download-info").empty()
+			$("<p>", {
+				"html": "Downloading the video from Youtube and Converting it..."
+			}).appendTo("#download-info")
+			console.log("Sending Ajax request.")
 		   	$.ajax({    
 		     	url:'backend.php',
 		     	data:{
@@ -26,19 +38,17 @@
 					
 					// create download link:
 					if(data["return"] != "0" && data["vid"] != "undefined") {
-						dl = $(document.createElement("div"))
-						dl.appendTo("body")
+						// the first time user do the conversion
 						$("<a>", {
 							"id": "download-link",
 							 "href": "backend.php?vid=" + data_json["vid"] + "&op=download",
 							 "html": "Download Link"
-						}).appendTo(dl)
-
+						}).appendTo("#download-info")
 
 					} else {
 						$("<p>", {
 							"html" : "Convertion Failed."
-						}).appendTo("body")
+						}).appendTo("#download-info")
 						console.log("data: " + data + " status: " + status)
 					}
 		     	}
