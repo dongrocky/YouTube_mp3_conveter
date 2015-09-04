@@ -16,7 +16,7 @@
 	} else {
 		return json_encode(
 			array(
-				"return" => "-1",
+				"return" => "0",
 				"output" => "No operation is provided."
 				));
 	}

@@ -22,7 +22,7 @@
 			}
 			$("#download-info").empty()
 			$("<p>", {
-				"html": "Downloading the video from Youtube and Converting it..."
+				"html": "Downloading the video from Youtube and converting it..."
 			}).appendTo("#download-info")
 			console.log("Sending Ajax request.")
 		   	$.ajax({    
@@ -37,7 +37,7 @@
 			     	data_json = JSON.parse(data)
 					
 					// create download link:
-					if(data["return"] != "0" && data["vid"] != "undefined") {
+					if(data_json["return"] == "0" && data_json["vid"] != "undefined") {
 						// the first time user do the conversion
 						$("<a>", {
 							"id": "download-link",
@@ -47,9 +47,9 @@
 
 					} else {
 						$("<p>", {
-							"html" : "Convertion Failed."
+							"html" : "Convertion Failed: " + data_json["output"]
 						}).appendTo("#download-info")
-						console.log("data: " + data + " status: " + status)
+						//console.log("data: " + data + " status: " + status)
 					}
 		     	}
 		   }); 

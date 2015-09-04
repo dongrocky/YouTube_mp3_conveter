@@ -25,19 +25,37 @@
 				$vid = $match[2];
 			} else {
 				error_log("Pattern does not match. Exit");
+				$arr = array(
+				"return" => "1",
+				"output" => "URL is not correct",
+				"vid"	 => "undefined"
+				);
+				echo json_encode($arr);
 				exit;
 			}
 
-			error_log("Downloading youtube from youtube.com");
-			exec("youtube-dl -x ".$url." --audio-format mp3 -o 'Downloads/%(id)s.%(ext)s'", $output, $ret);
-			error_log("Converstion has completed");
-
-			$arr = array(
-				"return" => $ret,
-				"output" => $output,
-				"vid"	 => $vid
+			// Check if the converted file already exists
+			if(file_exists("Downloads/".$vid.".mp3")) {
+				error_log("Requestd file in the cache: id: " . $vid);
+				$arr = array(
+					"return" => "0",
+					"output" => "File in the cache",
+					"vid"	 => $vid
 				);
-			echo json_encode($arr);
+				echo json_encode($arr);
+				exit;
+			} else {
+				error_log("Downloading youtube from youtube.com");
+				exec("youtube-dl -x ".$url." --audio-format mp3 -o 'Downloads/%(id)s.%(ext)s'", $output, $ret);
+				error_log("Converstion has completed");
+
+				$arr = array(
+					"return" => $ret,
+					"output" => $output,
+					"vid"	 => $vid
+					);
+				echo json_encode($arr);
+			}	
 		}
 
 		public function get() {
