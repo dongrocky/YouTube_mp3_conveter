@@ -1,0 +1,80 @@
+/* Set font for general */
+
+* {
+	font-family: "geogia", sans-serif;
+}
+
+#site-title {
+	background-color: #FFA500;
+	height:85px;
+}
+
+#logo {
+
+}
+#logo img{
+	width: 80px;
+	height: 80px;
+	padding-left: 10px;
+	margin-top: 4px
+}
+
+#site-name {
+	display: inline;
+	position: relative;
+	bottom: 20px;
+	left: 25px;
+	font-family: "arial black", gadget, sans-serif;
+}
+
+/* Content part... */
+
+#content {
+	background-color: #FAF0E6;
+	border-top: 1px dotted;
+	height: 100%;
+}
+
+#site-description {
+	font-family: "Comic Sans MS", cursive, sans-serif;
+	font-style: italic;
+	margin-left: 10px;
+}
+
+#site-description-detail {
+	font-family: "Comic Sans MS", serif;
+	font-size: medium;
+	margin-left: 25px;
+	position: relative;
+	bottom: 5px;
+}
+
+#yurl {
+	margin-left: 25px;
+	width: 600px;
+	height: 25px;
+	border: 1px, dotted, grey;
+	border-radius: .5em;
+	margin-bottom: 10px;
+	font-family: georgia, serif;
+	font-size: medium;
+
+}
+
+#url_form [type="submit"] {
+	margin-left: 20px;
+	border-radius: 3px;
+	border: 1px solid black;
+	width: 100px;
+	height: 25px;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#CFCFCF));
+	font-size: medium;
+	font-family: "Book Antiqua", Palatino, serif;
+	font-weight: bold;
+}
+
+#download-info {
+	margin-left: 10px;
+}
+
+

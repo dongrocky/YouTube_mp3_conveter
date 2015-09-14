@@ -1,0 +1,75 @@
+<html>
+<head>
+	<script src="jquery-1.11.3.min.js"></script>
+	<meta charset="UTF-8">
+	<base href="http://localhost/~XZ/"/>
+	<link rel="stylesheet" href="css/style.css"/>
+</head>
+
+<body>
+	<div class="wrapper">
+		<!---------------- Navigation bar -------------------->
+		<div id="site-title">
+			<a id="logo" href="FrontPage.html"><img src="img/youtube-mp3_150px.png"></a>
+			<h1 id="site-name">Youtube mp3 Converter</h1>
+		</div>
+
+		<!----------------- Content ------------------------>
+		<div id="content">			
+			<h3 id="site-description">How to convert video to mp3</h3>
+			<p id="site-description-detail">Search for a video on YouTube and copy & paste the link (URL) of the video in the input box and press "convert". </p>
+			<form id="url_form">
+				<input type='text' name='youtube_url' id="yurl">
+				<input type='submit' value="Convert">
+			</form> 
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$('#url_form [type=submit]').click(function(e){
+			console.log("Submit, Data: " + $("#yurl").val())
+		   	e.preventDefault();		//prevents default form submit.
+
+		   	// create download info section
+			if($("#download-info").length == 0) {
+				dl = $(document.createElement("div"))
+				dl.attr("id","download-info")
+				dl.appendTo("#content")
+			}
+			$("#download-info").empty()
+			$("<p>", {
+				"html": "Downloading the video from Youtube and converting it..."
+			}).appendTo("#download-info")
+			console.log("Sending Ajax request.")
+		   	$.ajax({    
+		     	url:'backend.php',
+		     	data:{
+		     		"youtube_url":$("#yurl").val(),
+		     		"op":"convert"
+		     	},
+		     	success :function(data, status){
+			     	console.log("Data has been returned:" + data)
+
+			     	data_json = JSON.parse(data)
+					
+					// create download link:
+					if(data_json["return"] == "0" && data_json["vid"] != "undefined") {
+						// the first time user do the conversion
+						$("<a>", {
+							"id": "download-link",
+							 "href": "backend.php?vid=" + data_json["vid"] + "&op=download",
+							 "html": "Download Link"
+						}).appendTo("#download-info")
+
+					} else {
+						$("<p>", {
+							"html" : "Convertion Failed: " + data_json["output"]
+						}).appendTo("#download-info")
+						//console.log("data: " + data + " status: " + status)
+					}
+		     	}
+		   }); 
+		}); 
+	</script>
+</body>
+</html>
