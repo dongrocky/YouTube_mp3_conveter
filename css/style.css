@@ -77,4 +77,19 @@
 	margin-left: 10px;
 }
 
+#status-bar {
+	height: 1em;
+	width:725px;
+	border-radius: .2em;
+	margin-left:10px;
+}
+
+#download-status {
+	margin-left: 10px;
+}
+
+fieldset {
+	border: 0px;
+}
+
 

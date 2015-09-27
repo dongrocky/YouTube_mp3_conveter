@@ -4,6 +4,8 @@
 	<meta charset="UTF-8">
 	<base href="http://localhost/~XZ/"/>
 	<link rel="stylesheet" href="css/style.css"/>
+	<script src="jquery-ui-1.11.4/jquery-ui.js"></script>
+	<link rel="stylesheet" href="jquery-ui-1.11.4/jquery-ui.css">
 </head>
 
 <body>
@@ -38,8 +40,19 @@
 			}
 			$("#download-info").empty()
 			$("<p>", {
-				"html": "Downloading the video from Youtube and converting it..."
+				"id": "download-status",
+				"html": "Start downloading. This may take a few minutes."
 			}).appendTo("#download-info")
+		   	$("<div>", {
+ 				"id": "status-bar"
+ 			}).appendTo("#download-info")
+ 			$("#status-bar").progressbar({
+ 				"value" : false
+ 			})
+
+
+		   	// poll ajax and request ajax
+			setTimeout("waitForUpdate()", 1000,0)
 			console.log("Sending Ajax request.")
 		   	$.ajax({    
 		     	url:'backend.php',
@@ -51,25 +64,85 @@
 			     	console.log("Data has been returned:" + data)
 
 			     	data_json = JSON.parse(data)
+
+			     	$("#download-info").empty();
 					
 					// create download link:
 					if(data_json["return"] == "0" && data_json["vid"] != "undefined") {
-						// the first time user do the conversion
+						$("<fieldset/>").appendTo("#download-info")
+						$("<p>", {
+							"id": "video-title",
+							"html": "Video Name: " + data_json["meta"]["title"]
+						}).appendTo("fieldset")
+						$("<p>", {
+							"id": "video-length",
+							"html": "Video Length: " + data_json["meta"]["duration"] + " seconds"
+						}).appendTo("fieldset")
 						$("<a>", {
 							"id": "download-link",
 							 "href": "backend.php?vid=" + data_json["vid"] + "&op=download",
 							 "html": "Download Link"
-						}).appendTo("#download-info")
-
+						}).appendTo("fieldset")
 					} else {
 						$("<p>", {
 							"html" : "Convertion Failed: " + data_json["output"]
 						}).appendTo("#download-info")
-						//console.log("data: " + data + " status: " + status)
+						console.log("Error: Video conversion failed. data: " 
+							+ data + " status: " + status)
 					}
 		     	}
 		   }); 
+
 		}); 
+
+		function waitForUpdate(timestamp) {
+			console.log("Polling message.")
+			$.ajax({    
+		     	url:'backend.php',
+		     	data:{
+		     		"youtube_url":$("#yurl").val(),
+		     		"op":"pollStatus", 
+		     		"timestamp":timestamp
+		     	},
+		     	success: function(data) {
+		     		try {
+		     			serverRsp = JSON.parse(data)
+		     			lastChangeTime = serverRsp["timestamp"] === "undefined" ? 0 : parseInt(serverRsp["timestamp"])
+		     			status = parseInt(serverRsp["content"]);
+		     			console.log("status: " + status)
+		     			switch(status) {
+		     				case "0": 
+								$("#download-status").html("Server is busy. Please wait.");
+								waitForUpdate(lastChangeTime);
+								break;		     				
+		     				case "1": 
+								$("#download-status").html("Downloading video meta data ...");
+								waitForUpdate(lastChangeTime);
+								break;
+		     				case "2":
+		     					$("#download-status").html("Downloading video ...");
+		     					waitForUpdate(lastChangeTime);
+								break;
+		     				case "3":
+		     					$("#download-status").html("Converting video ...");
+								break;
+		     					waitForUpdate(lastChangeTime)
+		     					break;
+		     				case "4":
+		     					// complete
+		     					console.log("Conversion completed ...");
+		     					break;
+		     				default:
+		     					// error case
+		     					console.log("Error: wrong status returned. " + data)
+
+		     			}
+		     		} catch (e) {
+		     			console.log("Failed to parse server poll response. " + data)
+		     		}
+		     	}
+		    })
+		}
 	</script>
 </body>
 </html>
