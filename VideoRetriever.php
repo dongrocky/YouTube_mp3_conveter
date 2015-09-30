@@ -5,8 +5,6 @@
 		public function __construct() {
 			$sid = session_id();
 			$this->progressFile = "Downloads/".$sid.".txt";
-			fopen($this->progressFile, "w") or die("Can not create session file ".$sid.".txt");
-			fclose($this->progressFile);
 		}
 		public function convert() {
 			$host = $_SERVER["HTTP_HOST"];
@@ -69,7 +67,6 @@
 				$meta = $this->getVideoMeta($vid);
 				$arr = array(
 					"return" 	=> $ret,
-					"output"	=> file_get_contents($this->progressFile),
 					"vid" 		=> $vid,
 					"meta" 		=> $meta
 					);
@@ -186,6 +183,11 @@
 			   2 => array("pipe", "w")    // stderr is a pipe that the child will write to
 			);
 			$pipes = array();
+			$file = fopen($this->progressFile, "w+");
+    		if($file) {
+    			ftruncate($file, 0);
+    		}
+    		fclose($file);
 			$process = proc_open($cmd, $descriptorspec, $pipes);
 			$status = 0;
 			$sid = session_id();
@@ -198,10 +200,6 @@
 			    	if(preg_match("@^\[youtube\]@", $s) && $status == 0) {
 			    		// downloading meta data
 			    		// truncate the status files in case there is residues.
-			    		$file = fopen($this->progressFile, "w+");
-			    		if($file) {
-			    			ftruncate($file, 0);
-			    		}
 			    		error_log("Status 1. Session: " . $sid);
 			    		file_put_contents($this->progressFile, "1");
 			    		$status = 1;
