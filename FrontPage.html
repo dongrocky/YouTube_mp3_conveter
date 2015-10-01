@@ -69,6 +69,7 @@
 					
 					// create download link:
 					if(data_json["return"] == "0" && data_json["vid"] != "undefined") {
+						duration = convertTime(data_json["meta"]["duration"]);
 						$("<fieldset/>").appendTo("#download-info")
 						$("<p>", {
 							"id": "video-title",
@@ -76,16 +77,16 @@
 						}).appendTo("fieldset")
 						$("<p>", {
 							"id": "video-length",
-							"html": "Video Length: " + data_json["meta"]["duration"] + " seconds"
+							"html": "Video Length: " + duration
 						}).appendTo("fieldset")
 						$("<a>", {
 							"id": "download-link",
-							 "href": "backend.php?vid=" + data_json["vid"] + "&op=download",
+							 "href": "backend.php?vid=" + duration,
 							 "html": "Download Link"
 						}).appendTo("fieldset")
 					} else {
 						$("<p>", {
-							"html" : "Convertion failed."
+							"html" : "Convertion failed. </br>" + data_json["error"]
 						}).appendTo("#download-info")
 						console.log("Error: Video conversion failed. data: " 
 							+ data + " status: " + status)
@@ -108,7 +109,7 @@
 		     		try {
 		     			serverRsp = JSON.parse(data)
 		     			lastChangeTime = serverRsp["timestamp"] === "undefined" ? 0 : parseInt(serverRsp["timestamp"])
-		     			status = parseInt(serverRsp["content"]);
+		     			status = serverRsp["content"];
 		     			console.log("status: " + status)
 		     			switch(status) {
 		     				case "0": 
@@ -142,6 +143,24 @@
 		     		}
 		     	}
 		    })
+		}
+
+		function convertTime(time) {
+			if(time == "undefined") {
+				return "0 second";
+			}
+			t = parseInt(time);
+			ret = "";
+			ret = (t % 60) + " second"
+			if(t >= 60) {
+				t = ~~(t / 60);
+				ret = (t % 60) + " minute " + ret;
+				if(t >= 60) {
+					ret = ~~(t / 60) + " hour " + ret;
+				} 
+			}
+
+			return ret;
 		}
 	</script>
 </body>

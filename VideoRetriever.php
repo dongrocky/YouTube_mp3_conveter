@@ -33,7 +33,8 @@
 				$arr = array(
 				"return" => "1",
 				"output" => "URL is not correct",
-				"vid"	 => "undefined"
+				"vid"	 => "undefined",
+				"error"	 => "ERROR: URL is not correct." 
 				);
 				echo json_encode($arr);
 				exit;
@@ -42,6 +43,9 @@
 			// Check if the converted file already exists
 			if(file_exists("Downloads/".$vid.".mp3")) {
 				error_log("Requestd file in the cache: id: " . $vid);
+
+				// update the progress file so it will not keep polling
+				file_put_contents($this->progressFile, "4");
 				$meta = $this->getVideoMeta($vid);
 				$arr = array(
 					"return" => "0",
@@ -59,7 +63,7 @@
 				error_log("Downloading youtube from youtube.com");
 				//exec("youtube-dl -x ".$url." --audio-format mp3 --write-info-json -o 'Downloads/%(id)s.%(ext)s'", $output, $ret);
 				//system("youtube-dl -x ".$url." --audio-format mp3 --write-info-json -o 'Downloads/%(id)s.%(ext)s'");
-				$ret = $this->convertVideoRealtimeOutput("youtube-dl -x ".$url." --audio-format mp3 --write-info-json -o 'Downloads/%(id)s.%(ext)s'", $url);
+				$ret = $this->convertVideoRealtimeOutput("youtube-dl -x ".$url." --audio-format mp3 --write-info-json -o 'Downloads/%(id)s.%(ext)s' 2>&1", $url);
 				error_log("Converstion has completed");
 
 				// Get meta data from the the meta file
@@ -70,6 +74,9 @@
 					"vid" 		=> $vid,
 					"meta" 		=> $meta
 					);
+				if($ret != 0) {
+					$arr["error"] = file_get_contents($this->progressFile);
+				}
 				echo json_encode($arr);
 				
 			}	
@@ -127,8 +134,8 @@
 					"timestamp" => $changeTime,
 					"content"	=> file_get_contents($this->progressFile));
 			}	
-			error_log("Return to poll: " . $ret["content"] . "timestamp: " . $ret["timestamp"] . 
-					"lastChangeTime " . $lastChangeTime);
+			error_log("Return to poll: " . $ret["content"] . " : " . $ret["timestamp"] . 
+					" lastChangeTime " . $lastChangeTime);
 			echo json_encode($ret);
 			flush();
 
@@ -142,14 +149,17 @@
 		private function getVideoMeta($vid) {
 			// purpose: read meta data in the json meta file and return them 
 			// as an associative array
+			$meta = "";
+			if(file_exists("Downloads/".$vid.".info.json")) {
 				$meta_str = file_get_contents("Downloads/".$vid.".info.json");
 				$meta_json = json_decode($meta_str, true);
 				$meta = array( 
 					"title" => $meta_json["title"],
 					"duration" => $meta_json["duration"]
 					);
+			}	
 
-				return $meta;
+			return $meta;
 		}
 
 		private function disable_ob() {
@@ -218,7 +228,13 @@
 			    		error_log("Status 4. Session: " . $sid);
 			    		file_put_contents($this->progressFile, "4");
 			    		$status = 4;
-			    	}  else {
+			    	}  else if (preg_match("@^ERROR:@", $s)) {
+			    		// some error
+			    		error_log("Error: " . $s);
+			    		file_put_contents($this->progressFile, $s);
+			    		break;
+			    	} else {
+			    		//error_log("youtube-dl: " . $s);
 			    		usleep(851000);
 			    	}
 //			    	clearstatcache();
@@ -230,6 +246,7 @@
 			if($status == 4) {
 				return 0;
 			} else {
+				// conversion failed
 				return 1;
 			}
 		}
