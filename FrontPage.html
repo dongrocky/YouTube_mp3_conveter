@@ -6,6 +6,8 @@
 	<link rel="stylesheet" href="css/style.css"/>
 	<script src="jquery-ui-1.11.4/jquery-ui.js"></script>
 	<link rel="stylesheet" href="jquery-ui-1.11.4/jquery-ui.css">
+	<meta name="keywords" content="YouTube, mp3, conversion, convertion, audio"/>
+	<meta name="robots" content="index, follow"/>
 </head>
 
 <body>
@@ -81,7 +83,7 @@
 						}).appendTo("fieldset")
 						$("<a>", {
 							"id": "download-link",
-							 "href": "backend.php?vid=" + duration,
+							 "href": "backend.php?vid=" + data_json["vid"] + "&op=download,
 							 "html": "Download Link"
 						}).appendTo("fieldset")
 					} else {
